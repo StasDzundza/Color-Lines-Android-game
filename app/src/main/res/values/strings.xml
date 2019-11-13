@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">ColorLinesClassic</string>
+    <string name="main_image">Main Image</string>
+    <string name="new_game">New Game</string>
+    <string name="continue_game">Continue</string>
+    <string name="quit_game">Quit</string>
+    <string name="no_way">There are no way to this position</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+</resources>
