@@ -13,6 +13,7 @@ public class ColorLines implements Serializable {
     private int score = 0;
     private int numberOfEmptyCells;
     private boolean gameOver = false;
+    private int[] nextColors;
 
     private Cell[][] field;
 
@@ -26,19 +27,34 @@ public class ColorLines implements Serializable {
     }
 
     public ColorLines() {
+        initializeGame(9,9);
+    }
+
+    public ColorLines(int numberOfRows, int numberOfColumns) {
+        initializeGame(numberOfRows,numberOfColumns);
+    }
+
+    private void initializeGame(int numberOfRows, int numberOfColumns){
         pathFinder = new PathFinder(this);
-        numberOfEmptyCells = numberOfColumns*numberOfRows;
+        this.numberOfColumns = numberOfColumns;
+        this.numberOfRows = numberOfRows;
+        numberOfEmptyCells = numberOfColumns * numberOfRows;
+        nextColors = new int[numberOfBallsAddingPerStep];
+        generateNextColors();
         createCells();
         createBalls();
     }
 
-    public ColorLines(int numberOfRows, int numberOfColumns) {
-        pathFinder = new PathFinder(this);
-        numberOfEmptyCells = numberOfColumns*numberOfRows;
-        this.numberOfColumns = numberOfColumns;
-        this.numberOfRows = numberOfRows;
-        createCells();
-        createBalls();
+    private void generateNextColors() {
+        Random randomGenerator = new Random();
+        for (int i = 0; i < numberOfBallsAddingPerStep; i++) {
+            int colorIndex = randomGenerator.nextInt(Settings.ballColors.length);
+            nextColors[i] = colorIndex;
+        }
+    }
+
+    public int getNextColor(int index) {
+        return nextColors[index];
     }
 
     public int getNumberOfRowsInField() {
@@ -54,7 +70,7 @@ public class ColorLines implements Serializable {
     }
 
     public void createBalls() {
-        if(numberOfEmptyCells - numberOfBallsAddingPerStep < 0 ){
+        if (numberOfEmptyCells - numberOfBallsAddingPerStep < 0) {
             gameOver = true;
             return;
         }
@@ -67,17 +83,17 @@ public class ColorLines implements Serializable {
                 Cell c = getCell(row, column);
                 if (c.isEmpty()) {
                     c.makeEmpty(false);
-                    int colorIndex = randomGenerator.nextInt(Settings.ballColors.length);
-                    c.setCellColor(Settings.ballColors[colorIndex]);
-                    //тут має бути перевірка чи не знищується щось при добавлянні нового шара
-                    destroyCells(row,column);
+                    c.setCellColor(Settings.ballColors[nextColors[i]]);
+                    destroyCells(row, column);
                     break;
                 }
             }
         }
-        numberOfEmptyCells-=numberOfBallsAddingPerStep;
-        if(numberOfEmptyCells<=0)
+        numberOfEmptyCells -= numberOfBallsAddingPerStep;
+        if (numberOfEmptyCells <= 0)
             gameOver = true;
+        else
+            generateNextColors();
     }
 
     public boolean replaceBall(int row1, int column1, int row2, int column2) {
@@ -91,8 +107,10 @@ public class ColorLines implements Serializable {
                     destination.copyOtherCell(start);
                     start.copyOtherCell(tmp);
                     boolean destroyed = destroyCells(row2, column2);
-                    if (!destroyed)
+                    if (!destroyed) {
                         createBalls();
+                        generateNextColors();
+                    }
                     return true;
                 } else {
                     return false;
@@ -139,8 +157,8 @@ public class ColorLines implements Serializable {
                 Cell current = getCell(rowFrom, i);
                 current.clear();
             }
-            score+=numberOfSameBallsInRow;
-            numberOfEmptyCells+=numberOfSameBallsInRow;
+            score += numberOfSameBallsInRow;
+            numberOfEmptyCells += numberOfSameBallsInRow;
             return true;
         }
 
@@ -177,19 +195,19 @@ public class ColorLines implements Serializable {
                 Cell current = getCell(i, columnFrom);
                 current.clear();
             }
-            score+=numberOfSameBallsInColumn;
-            numberOfEmptyCells+=numberOfSameBallsInColumn;
+            score += numberOfSameBallsInColumn;
+            numberOfEmptyCells += numberOfSameBallsInColumn;
             return true;
         }
 
         return false;
     }
 
-    public int getScore(){
+    public int getScore() {
         return score;
     }
 
-    public boolean gameOver(){
+    public boolean gameOver() {
         return gameOver;
     }
 }
