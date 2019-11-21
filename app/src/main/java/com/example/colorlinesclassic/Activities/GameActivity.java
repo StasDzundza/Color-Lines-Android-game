@@ -5,8 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -20,11 +18,19 @@ import com.example.colorlinesclassic.AlertDialogWindow;
 import com.example.colorlinesclassic.Cell;
 
 import com.example.colorlinesclassic.ColorLines;
+import com.example.colorlinesclassic.Drawer;
 import com.example.colorlinesclassic.R;
 import com.example.colorlinesclassic.Settings;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.logging.Logger;
+
 public class GameActivity extends AppCompatActivity {
 
+    private Settings gameSettings;
     private final int cellSize = 100;
     private final int ballRadius = 25;
     private View mainView;
@@ -33,13 +39,15 @@ public class GameActivity extends AppCompatActivity {
     private int firstPressedButtonId = 0, secondPressedButtonId = 0;
     private long backPressedTime;
     private Toast backToast;
+    private Logger logger = Logger.getLogger(GameActivity.class.getName());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
         initValues();
-        createField(Settings.rows, Settings.columns);//settings value
+        createField(gameSettings.getRows(), gameSettings.getColumns());//settings value
+
         startNewGame();
         setupStartView();
     }
@@ -78,13 +86,14 @@ public class GameActivity extends AppCompatActivity {
         int colorIndex1 = colorLines.getNextColor(i++);
         int colorIndex2 = colorLines.getNextColor(i++);
         int colorIndex3 = colorLines.getNextColor(i++);
-        b1.setImageBitmap(getBallBitmap(Settings.ballColors[colorIndex1], cellSize, cellSize, ballRadius));
-        b2.setImageBitmap(getBallBitmap(Settings.ballColors[colorIndex2], cellSize, cellSize, ballRadius));
-        b3.setImageBitmap(getBallBitmap(Settings.ballColors[colorIndex3], cellSize, cellSize, ballRadius));
+        b1.setImageBitmap(Drawer.getBallBitmap(Settings.ballColors[colorIndex1], cellSize, cellSize, ballRadius));
+        b2.setImageBitmap(Drawer.getBallBitmap(Settings.ballColors[colorIndex2], cellSize, cellSize, ballRadius));
+        b3.setImageBitmap(Drawer.getBallBitmap(Settings.ballColors[colorIndex3], cellSize, cellSize, ballRadius));
         setContentView(mainView);
     }
 
     private void initValues() {
+        gameSettings = new Settings();
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mainView = inflater.inflate(R.layout.activity_game, null);
         fieldPressedListener = getListenerForFieldButtonPress();
@@ -122,18 +131,6 @@ public class GameActivity extends AppCompatActivity {
         imageButton.setBackground(buttonStyle);
     }
 
-    private Bitmap getBallBitmap(int color, int width, int height, int radius) {
-        Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-
-        Paint paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setColor(color);
-
-        Canvas c = new Canvas(bmp);
-        c.drawCircle(width / 2, height / 2, radius, paint);
-        return bmp;
-    }
-
     private void updateButtonView(ImageButton button, Bitmap bitmap) {
         button.setImageBitmap(bitmap);
         setContentView(mainView);
@@ -144,31 +141,24 @@ public class GameActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 int buttonId = v.getId();
+
                 if (firstPressedButtonId == 0) {
-                    firstPressedButtonId = buttonId;
+                    boolean isEmptyCell = colorLines.getCell((buttonId - 1) / gameSettings.getRows(),
+                            (buttonId - 1) % gameSettings.getColumns()).isEmpty();
+                    if (!isEmptyCell)
+                        firstPressedButtonId = buttonId;
                 } else {
                     secondPressedButtonId = buttonId;
                     firstPressedButtonId--;
                     secondPressedButtonId--;
-                    int row1 = firstPressedButtonId / Settings.rows;
-                    int column1 = firstPressedButtonId % Settings.columns;
-                    int row2 = secondPressedButtonId / Settings.rows;
-                    int column2 = secondPressedButtonId % Settings.columns;
+                    int row1 = firstPressedButtonId / gameSettings.getRows();
+                    int column1 = firstPressedButtonId % gameSettings.getColumns();
+                    int row2 = secondPressedButtonId / gameSettings.getRows();
+                    int column2 = secondPressedButtonId % gameSettings.getColumns();
                     boolean replaced = colorLines.replaceBall(row1, column1, row2, column2);
                     firstPressedButtonId = secondPressedButtonId = 0;
                     if (replaced) {
-                        updateFieldView();
-                        updateNextColorsButtonsView();
-                        int score = colorLines.getScore();
-                        if (score > Settings.record) {
-                            Settings.record = score;
-                            updateRecordAndScoreView(score, score);
-                        } else {
-                            updateRecordAndScoreView(Settings.record, score);
-                        }
-                        if (colorLines.gameOver()) {
-                            endGameHandler();
-                        }
+                        replacedBallHandler();
                     } else {
                         Toast backToast = Toast.makeText(getBaseContext(), R.string.no_way, Toast.LENGTH_SHORT);
                         backToast.show();
@@ -178,6 +168,21 @@ public class GameActivity extends AppCompatActivity {
         };
     }
 
+    private void replacedBallHandler() {
+        updateFieldView();
+        updateNextColorsButtonsView();
+        int score = colorLines.getScore();
+        if (score > gameSettings.getRecord()) {
+            gameSettings.setRecord(score);
+            updateRecordAndScoreView(score, score);
+        } else {
+            updateRecordAndScoreView(gameSettings.getRecord(), score);
+        }
+        if (colorLines.gameOver()) {
+            endGameHandler();
+        }
+    }
+
     private void endGameHandler() {
         Toast backToast = Toast.makeText(getBaseContext(), String.format("Game over. Your score is : %d", colorLines.getScore()), Toast.LENGTH_SHORT);
         backToast.show();
@@ -185,27 +190,28 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void updateFieldView() {
-        int numberOfId = Settings.rows * Settings.columns + 1;//because id starts from 1
+        int numberOfId = gameSettings.getRows() * gameSettings.getColumns() + 1;//because id starts from 1
         for (int i = 1; i < numberOfId; i++) {
             int buttonId = i - 1;
-            int row = buttonId / Settings.rows;
-            int column = buttonId % Settings.columns;
+            int row = buttonId / gameSettings.getRows();
+            int column = buttonId % gameSettings.getColumns();
             ImageButton imageButton = (ImageButton) mainView.findViewById(i);
             Cell c = colorLines.getCell(row, column);
             Bitmap newButtonBitmap;
             if (!c.isEmpty()) {
-                newButtonBitmap = getBallBitmap(c.getCellColor(), cellSize, cellSize, ballRadius);
+                newButtonBitmap = Drawer.getBallBitmap(c.getCellColor(), cellSize, cellSize, ballRadius);
             } else {
                 newButtonBitmap = null;
             }
             updateButtonView(imageButton, newButtonBitmap);
         }
+        setContentView(mainView);
     }
 
     public void startNewGame() {
-        colorLines = new ColorLines(Settings.rows, Settings.columns);
+        colorLines = new ColorLines(gameSettings.getRows(), gameSettings.getColumns());
         updateNextColorsButtonsView();
-        updateRecordAndScoreView(Settings.record, 0);
+        updateRecordAndScoreView(gameSettings.getRecord(), 0);
         updateFieldView();
     }
 
@@ -228,7 +234,7 @@ public class GameActivity extends AppCompatActivity {
             startActivity(intent);//open new activity
             finish();//close this window
         } catch (Exception e) {
-            //catch
+            logger.info(e.getMessage());
         }
     }
 }

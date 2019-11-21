@@ -12,6 +12,8 @@ import android.widget.Toast;
 
 import com.example.colorlinesclassic.R;
 
+import java.util.logging.Logger;
+
 public class MainMenuActivity extends AppCompatActivity {
 
     private Button newGameBtm;
@@ -19,6 +21,8 @@ public class MainMenuActivity extends AppCompatActivity {
     private Button quitGameBtn;
     private long backPressedTime;
     private Toast backToast;
+    private Logger logger = Logger.getLogger(GameActivity.class.getName());
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,7 +38,6 @@ public class MainMenuActivity extends AppCompatActivity {
 
     private void initializeButtons(){
         newGameBtm = findViewById(R.id.newGameBtn);
-        continueGameBtn = findViewById(R.id.continueGameBtn);
         quitGameBtn = findViewById(R.id.quitGameBtn);
 
     }
@@ -44,7 +47,7 @@ public class MainMenuActivity extends AppCompatActivity {
             startActivity(intent);//open new activity
             finish();//close this window
         }catch(Exception e){
-            //catch
+            logger.info(e.getMessage());
         }
     }
 
@@ -54,7 +57,7 @@ public class MainMenuActivity extends AppCompatActivity {
             startActivity(intent);//open new activity
             finish();//close this window
         }catch(Exception e){
-            //catch
+            logger.info(e.getMessage());
         }
     }
 

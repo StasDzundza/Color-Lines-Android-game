@@ -34,13 +34,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_gravity="center">
+                android:layout_gravity="center"
+                android:layout_marginBottom="100dp">
 
                 <TextView
                     android:id="@+id/record_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Record : "
+                    android:layout_weight="1"
                     android:textSize="24sp"/>
 
                 <ImageButton
@@ -66,6 +68,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Score : "
+                    android:layout_weight="1"
                     android:textSize="24sp" />
             </LinearLayout>
 
