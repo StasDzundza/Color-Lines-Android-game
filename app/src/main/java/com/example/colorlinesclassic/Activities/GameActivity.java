@@ -22,24 +22,21 @@ import com.example.colorlinesclassic.Drawer;
 import com.example.colorlinesclassic.R;
 import com.example.colorlinesclassic.Settings;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.logging.Logger;
 
 public class GameActivity extends AppCompatActivity {
-
+    private ViewSettings viewSettings;
     private Settings gameSettings;
-    private final int cellSize = 100;
-    private final int ballRadius = 25;
     private View mainView;
     private View.OnClickListener fieldPressedListener;
     private ColorLines colorLines;
-    private int firstPressedButtonId = 0, secondPressedButtonId = 0;
     private long backPressedTime;
     private Toast backToast;
+    private int firstPressedButtonId = 0;
+    private int secondPressedButtonId = 0;
     private Logger logger = Logger.getLogger(GameActivity.class.getName());
+    private int layoutId;
+    private int idCounter = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,14 +50,14 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void setupStartView() {
-        updateRecordAndScoreView(0, 0);
+        updateRecordAndScoreView(gameSettings.getRecord(), 0);
         LinearLayout.LayoutParams params = new LinearLayout
                 .LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         ImageButton b1 = mainView.findViewById(R.id.next_color_btn1);
         ImageButton b2 = mainView.findViewById(R.id.next_color_btn2);
         ImageButton b3 = mainView.findViewById(R.id.next_color_btn3);
-        params.width = cellSize;//const values
-        params.height = cellSize;
+        params.width = viewSettings.getCellSize();//const values
+        params.height = viewSettings.getCellSize();
         b1.setLayoutParams(params);
         b2.setLayoutParams(params);
         b3.setLayoutParams(params);
@@ -86,27 +83,33 @@ public class GameActivity extends AppCompatActivity {
         int colorIndex1 = colorLines.getNextColor(i++);
         int colorIndex2 = colorLines.getNextColor(i++);
         int colorIndex3 = colorLines.getNextColor(i++);
-        b1.setImageBitmap(Drawer.getBallBitmap(Settings.ballColors[colorIndex1], cellSize, cellSize, ballRadius));
-        b2.setImageBitmap(Drawer.getBallBitmap(Settings.ballColors[colorIndex2], cellSize, cellSize, ballRadius));
-        b3.setImageBitmap(Drawer.getBallBitmap(Settings.ballColors[colorIndex3], cellSize, cellSize, ballRadius));
+        b1.setImageBitmap(Drawer.getBallBitmap(Settings.ballColors[colorIndex1], viewSettings.getCellSize(),
+                viewSettings.getCellSize(), viewSettings.getBallRadius()));
+        b2.setImageBitmap(Drawer.getBallBitmap(Settings.ballColors[colorIndex2], viewSettings.getCellSize(),
+                viewSettings.getCellSize(), viewSettings.getBallRadius()));
+        b3.setImageBitmap(Drawer.getBallBitmap(Settings.ballColors[colorIndex3], viewSettings.getCellSize(),
+                viewSettings.getCellSize(), viewSettings.getBallRadius()));
         setContentView(mainView);
     }
 
     private void initValues() {
+        viewSettings = new ViewSettings();
         gameSettings = new Settings();
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mainView = inflater.inflate(R.layout.activity_game, null);
         fieldPressedListener = getListenerForFieldButtonPress();
+        layoutId = -gameSettings.getRows();
     }
 
     private void createField(int columns, int rows) {
         LinearLayout ly = (LinearLayout) mainView.findViewById(R.id.linesLayout);
-        int idCounter = 1;
+
         for (int i = 0; i < columns; i++) {
             LinearLayout line = new LinearLayout(this);
             line.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
             line.setOrientation(LinearLayout.HORIZONTAL);
-            line.setId(i);
+            line.setId(layoutId);
+            layoutId++;
             for (int j = 0; j < rows; j++) {
                 ImageButton imageButton = new ImageButton(this);
                 setUpButton(imageButton, idCounter);
@@ -122,8 +125,8 @@ public class GameActivity extends AppCompatActivity {
         imageButton.setId(id);
         LinearLayout.LayoutParams params = new LinearLayout
                 .LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-        params.width = cellSize;//const values
-        params.height = cellSize;
+        params.width = viewSettings.getCellSize();//const values
+        params.height = viewSettings.getCellSize();
         imageButton.setLayoutParams(params);
         imageButton.setOnClickListener(fieldPressedListener);
         Drawable buttonStyle = getResources().getDrawable(getResources()
@@ -199,7 +202,8 @@ public class GameActivity extends AppCompatActivity {
             Cell c = colorLines.getCell(row, column);
             Bitmap newButtonBitmap;
             if (!c.isEmpty()) {
-                newButtonBitmap = Drawer.getBallBitmap(c.getCellColor(), cellSize, cellSize, ballRadius);
+                newButtonBitmap = Drawer.getBallBitmap(c.getCellColor(), viewSettings.getCellSize(),
+                        viewSettings.getCellSize(), viewSettings.getBallRadius());
             } else {
                 newButtonBitmap = null;
             }
@@ -237,4 +241,5 @@ public class GameActivity extends AppCompatActivity {
             logger.info(e.getMessage());
         }
     }
+
 }

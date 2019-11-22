@@ -15,13 +15,10 @@ import com.example.colorlinesclassic.R;
 import java.util.logging.Logger;
 
 public class MainMenuActivity extends AppCompatActivity {
-
-    private Button newGameBtm;
-    private Button continueGameBtn;
-    private Button quitGameBtn;
     private long backPressedTime;
     private Toast backToast;
-    private Logger logger = Logger.getLogger(GameActivity.class.getName());
+    private Logger logger = Logger.getLogger(MainMenuActivity.class.getName());
+    private final int timeForDoubleBackPressed = 2000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +33,6 @@ public class MainMenuActivity extends AppCompatActivity {
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
-    private void initializeButtons(){
-        newGameBtm = findViewById(R.id.newGameBtn);
-        quitGameBtn = findViewById(R.id.quitGameBtn);
-
-    }
     public void onNewGamePressed(View w){
         try{
             Intent intent = new Intent(MainMenuActivity.this, GameActivity.class);
@@ -51,18 +43,8 @@ public class MainMenuActivity extends AppCompatActivity {
         }
     }
 
-    public void onContinuePressed(View w){
-        try{
-            Intent intent = new Intent(MainMenuActivity.this,GameActivity.class);
-            startActivity(intent);//open new activity
-            finish();//close this window
-        }catch(Exception e){
-            logger.info(e.getMessage());
-        }
-    }
-
     public void onQuitPressed(View w){
-        if(backPressedTime + 2000 > System.currentTimeMillis()) {
+        if(backPressedTime + timeForDoubleBackPressed > System.currentTimeMillis()) {
             backToast.cancel();
             super.onBackPressed();
             return;//exit from application

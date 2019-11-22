@@ -7,4 +7,6 @@
     <string name="no_way">There are no way to this position</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="record">Record</string>
+    <string name="score">Score</string>
 </resources>

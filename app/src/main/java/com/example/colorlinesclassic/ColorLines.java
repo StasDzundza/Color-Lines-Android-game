@@ -210,4 +210,20 @@ public class ColorLines implements Serializable {
     public boolean gameOver() {
         return gameOver;
     }
+
+    public int getNumberOfBallsAddingPerStep() {
+        return numberOfBallsAddingPerStep;
+    }
+
+    public int getNumberOfCellsForDestroying() {
+        return numberOfCellsForDestroying;
+    }
+
+    public void setPathFinder(PathFinder pathFinder){
+        this.pathFinder = pathFinder;
+    }
+
+    public Cell[][]getField(){
+        return field;
+    }
 }
