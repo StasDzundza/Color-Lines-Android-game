@@ -12,12 +12,14 @@ import android.widget.Toast;
 
 import com.example.colorlinesclassic.R;
 
+import org.apache.logging.log4j.Level;
+
 import java.util.logging.Logger;
 
 public class MainMenuActivity extends AppCompatActivity {
     private long backPressedTime;
     private Toast backToast;
-    private Logger logger = Logger.getLogger(MainMenuActivity.class.getName());
+    private org.apache.logging.log4j.Logger logger = (org.apache.logging.log4j.Logger)Logger.getLogger(MainMenuActivity.class.getName());
     private final int timeForDoubleBackPressed = 2000;
 
     @Override
@@ -39,7 +41,7 @@ public class MainMenuActivity extends AppCompatActivity {
             startActivity(intent);//open new activity
             finish();//close this window
         }catch(Exception e){
-            logger.info(e.getMessage());
+            logger.log(Level.ERROR,e.getMessage());
         }
     }
 

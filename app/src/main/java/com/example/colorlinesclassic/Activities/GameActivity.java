@@ -22,6 +22,8 @@ import com.example.colorlinesclassic.Drawer;
 import com.example.colorlinesclassic.R;
 import com.example.colorlinesclassic.Settings;
 
+import org.apache.logging.log4j.Level;
+
 import java.util.logging.Logger;
 
 public class GameActivity extends AppCompatActivity {
@@ -34,7 +36,7 @@ public class GameActivity extends AppCompatActivity {
     private Toast backToast;
     private int firstPressedButtonId = 0;
     private int secondPressedButtonId = 0;
-    private Logger logger = Logger.getLogger(GameActivity.class.getName());
+    private org.apache.logging.log4j.Logger logger = (org.apache.logging.log4j.Logger)Logger.getLogger(GameActivity.class.getName());
     private int layoutId;
     private int idCounter = 1;
 
@@ -238,7 +240,7 @@ public class GameActivity extends AppCompatActivity {
             startActivity(intent);//open new activity
             finish();//close this window
         } catch (Exception e) {
-            logger.info(e.getMessage());
+            logger.log(Level.ERROR,e.getMessage());
         }
     }
 

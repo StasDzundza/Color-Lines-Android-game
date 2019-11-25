@@ -8,8 +8,7 @@ import java.lang.reflect.Field;
 public class PathFinderTest {
     @Test
     public void checkDefaultSettings() throws NoSuchFieldException,IllegalAccessException{
-        ColorLines colorLines = new ColorLines();
-        PathFinder p = new PathFinder(colorLines);
+        PathFinder p = new PathFinder();
         Field dxField = PathFinder.class.
                 getDeclaredField("dx");
         dxField.setAccessible(true);
@@ -36,7 +35,6 @@ public class PathFinderTest {
         f.makeEmpty(false);
         Cell d = colorLines.getCell(1,1);
         d.makeEmpty(true);
-        PathFinder p = new PathFinder(colorLines);
-        Assert.assertTrue(p.findPath(0,0,1,1,colorLines.getField()));
+        Assert.assertTrue(PathFinder.findPath(0,0,1,1,colorLines.getField(),colorLines));
     }
 }

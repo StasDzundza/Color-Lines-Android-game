@@ -8,7 +8,6 @@ public class ColorLines implements Serializable {
     private int numberOfRows = 9;
     private int numberOfColumns = 9;
     private int numberOfCellsForDestroying = 5;
-    private PathFinder pathFinder;
     private final int numberOfBallsAddingPerStep = 3;
     private int score = 0;
     private int numberOfEmptyCells;
@@ -35,7 +34,7 @@ public class ColorLines implements Serializable {
     }
 
     private void initializeGame(int numberOfRows, int numberOfColumns){
-        pathFinder = new PathFinder(this);
+        //pathFinder = new PathFinder(this);
         this.numberOfColumns = numberOfColumns;
         this.numberOfRows = numberOfRows;
         numberOfEmptyCells = numberOfColumns * numberOfRows;
@@ -101,7 +100,7 @@ public class ColorLines implements Serializable {
         Cell destination = getCell(row2, column2);
         if (!start.isEmpty()) {
             if (destination.isEmpty()) {
-                boolean isPath = pathFinder.findPath(row1, column1, row2, column2, field);
+                boolean isPath = PathFinder.findPath(row1, column1, row2, column2, field,this);
                 if (isPath) {
                     Cell tmp = new Cell(destination);
                     destination.copyOtherCell(start);
@@ -217,10 +216,6 @@ public class ColorLines implements Serializable {
 
     public int getNumberOfCellsForDestroying() {
         return numberOfCellsForDestroying;
-    }
-
-    public void setPathFinder(PathFinder pathFinder){
-        this.pathFinder = pathFinder;
     }
 
     public Cell[][]getField(){

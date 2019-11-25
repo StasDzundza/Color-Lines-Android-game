@@ -3,7 +3,7 @@ package com.example.colorlinesclassic;
 import android.graphics.Color;
 
 public class Settings {
-    public static final int[] ballColors = {Color.RED,Color.GREEN,Color.BLUE,Color.WHITE,Color.YELLOW,Color.BLACK,Color.MAGENTA};
+    public final static int[] ballColors = {Color.RED,Color.GREEN,Color.BLUE,Color.WHITE,Color.YELLOW,Color.BLACK,Color.MAGENTA};
     private int rows = 9;
     private int columns = 9;
     private static int record = 0;

@@ -4,19 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PathFinder {
-    private ColorLines colorLines;
-    private List<Point> wave = new ArrayList<Point>();
-    private final int wall = 9999;
-    private final int[] dx = { 0, 1, 0, -1 };
-    private final int[] dy = { -1, 0, 1, 0 };
+    private static List<Point> wave = new ArrayList<Point>();
+    private final static int wall = 9999;
+    private final static int[] dx = { 0, 1, 0, -1 };
+    private final static int[] dy = { -1, 0, 1, 0 };
 
-    PathFinder(ColorLines colorLines){
-        this.colorLines = colorLines;
-    }
 
-    public boolean findPath(int rowFrom,int columnFrom,int rowTo,int columnTo,Cell[][]field){
-        int numberOfRowsInField = colorLines.getNumberOfRowsInField();
-        int numberOfColumnsInField = colorLines.getNumberOfColumnsInField();
+    public static boolean findPath(int rowFrom, int columnFrom, int rowTo, int columnTo, Cell[][]field, ColorLines game){
+        int numberOfRowsInField = game.getNumberOfRowsInField();
+        int numberOfColumnsInField = game.getNumberOfColumnsInField();
         int [][] additionalMatrix = initializeAdditionalMatrix(numberOfRowsInField,numberOfColumnsInField,field);
         int ny = rowFrom+1;
         int nx = columnFrom+1;
@@ -44,12 +40,12 @@ public class PathFinder {
                     }
                 }
             }
-            oldWave = new ArrayList<Point>(wave);
+            oldWave = new ArrayList<>(wave);
         }
         return false;
     }
 
-    private int[][] initializeAdditionalMatrix(int numberOfRowsInField,int numberOfColumnsInField,Cell[][]field){
+    private static int[][] initializeAdditionalMatrix(int numberOfRowsInField,int numberOfColumnsInField,Cell[][]field){
         int [][] additional_field = new int[numberOfRowsInField+2][numberOfColumnsInField+2];
         for(int i = 0; i < numberOfRowsInField; i++){
             for(int j = 0; j < numberOfColumnsInField; j++){
@@ -75,7 +71,7 @@ public class PathFinder {
         return additional_field;
     }
 
-    private class Point {
+    private static class Point {
         public Point(int first, int second) {
             this.first = first;
             this.second = second;

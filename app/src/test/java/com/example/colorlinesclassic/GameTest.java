@@ -2,14 +2,13 @@ package com.example.colorlinesclassic;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.FieldSetter;
+import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
- */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(PathFinder.class)
 public class GameTest {
     @Test
     public void cellParametrTest() {
@@ -44,15 +43,15 @@ public class GameTest {
 
     @Test
     public void replaceBallTest(){
-        PathFinder pathFinder = Mockito.mock(PathFinder.class);
         ColorLines colorLines = new ColorLines();
         Cell f = colorLines.getCell(0,0);
         f.makeEmpty(false);
         Cell d = colorLines.getCell(1,1);
         d.makeEmpty(true);
-        Mockito.when(pathFinder.findPath(0,0,1,1,colorLines.getField())).thenReturn(true);
-        colorLines.setPathFinder(pathFinder);
+        PowerMockito.mockStatic(PathFinder.class);
+        PowerMockito.when(PathFinder.findPath(0,0,1,1,colorLines.getField(),colorLines))
+                .thenReturn(true);
         colorLines.replaceBall(0,0,1,1);
-        Mockito.verify(pathFinder).findPath(0,0,1,1,colorLines.getField());
+        PowerMockito.verifyStatic();
     }
 }
